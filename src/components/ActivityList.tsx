@@ -1,26 +1,22 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useMemo, Dispatch } from "react"
+import { useMemo } from "react"
 import { categories } from "../data/categories"
 import { Activity } from "../types"
 import { PencilSquareIcon, XCircleIcon } from "@heroicons/react/24/outline"
-import { ActivityActions } from "../reducers/activity-reducer"
+import { useActivity } from "../hooks/useActivity"
 
-type ActivityListProps = {
-  activities: Activity[]
-  dispacth: Dispatch<ActivityActions>
-}
-
-export default function ActivityList({
-  activities,
-  dispacth
-}: ActivityListProps) {
+export default function ActivityList() {
+  const { state, dispatch } = useActivity()
   const categoryName = useMemo(
     () => (category: Activity["category"]) =>
       categories.map((cat) => (cat.id === category ? cat.name : "")),
-    [activities]
+    [state.activities]
   )
 
-  const isEmptyActivities = useMemo(() => activities.length === 0, [activities])
+  const isEmptyActivities = useMemo(
+    () => state.activities.length === 0,
+    [state.activities]
+  )
 
   return (
     <>
@@ -30,7 +26,7 @@ export default function ActivityList({
       {isEmptyActivities ? (
         <p className="text-center my-5">No hay activiades aun..</p>
       ) : (
-        activities.map((activity) => (
+        state.activities.map((activity) => (
           <div
             key={activity.id}
             className="px-5 py-10 bg-white mt-5 flex justify-between shadow"
@@ -52,7 +48,7 @@ export default function ActivityList({
             <div className="flex gap-5 items-center">
               <button
                 onClick={() =>
-                  dispacth({
+                  dispatch({
                     type: "set-activeId",
                     payload: { id: activity.id }
                   })
@@ -62,7 +58,7 @@ export default function ActivityList({
               </button>
               <button
                 onClick={() =>
-                  dispacth({
+                  dispatch({
                     type: "delete-activity",
                     payload: { id: activity.id }
                   })
